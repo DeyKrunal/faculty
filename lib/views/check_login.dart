@@ -13,14 +13,12 @@ class CheckLogin extends StatefulWidget {
 class _CheckLoginState extends State<CheckLogin> {
   @override
   void initState() {
-    // TODO: implement initState
-    Constants.getPrefrence();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    Future.delayed(Duration(seconds: 3)).then((value) {
+    Future.delayed(const Duration(seconds: 3)).then((value) {
       bool? s = Constants.prefs?.getBool("isLogin");
       print(
           "** check login s: ${Constants.prefs?.getBool("isLogin") ?? false}");
@@ -38,7 +36,7 @@ class _CheckLoginState extends State<CheckLogin> {
             ));
       }
     });
-    return Scaffold(
+    return const Scaffold(
       body: Center(
         child: CircularProgressIndicator(),
       ),

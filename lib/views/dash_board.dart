@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:project_management_system/utils/constants.dart';
 import 'package:project_management_system/utils/thems.dart';
@@ -243,7 +241,7 @@ class _DashBoardState extends State<DashBoard> {
                                             child: ProgressBar(
                                               value: ApiData
                                                       .groupDataList[index]
-                                                      .count /
+                                                      .count! /
                                                   100,
                                               // value: ApiData.groupDataList[index].count / 100,
                                               width: 150,

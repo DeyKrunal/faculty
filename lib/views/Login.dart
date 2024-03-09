@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:project_management_system/views/home_page.dart';
 import 'package:rive/rive.dart';
-import 'splash.dart';
 import 'package:project_management_system/utils/constants.dart';
 
 class LoginPage extends StatefulWidget {
@@ -31,12 +30,13 @@ class _LoginPage extends State<LoginPage> {
       "active",
       autoplay: false,
     );
+    Constants.getPrefrence();
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       body: Stack(
         children: [
@@ -74,7 +74,7 @@ class _LoginPage extends State<LoginPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
+                    const Padding(
                       padding: EdgeInsets.fromLTRB(130, 100, 20, 10),
                       child: Text(
                         'Login',
@@ -94,25 +94,25 @@ class _LoginPage extends State<LoginPage> {
                       //     color: Colors.white60,
                       //     margin: EdgeInsets.all(20.0),
                       child: Padding(
-                        padding: EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.all(16.0),
                         child: Form(
                           key: _formKey,
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Padding(
-                                padding: EdgeInsets.fromLTRB(5, 30, 5, 5),
+                                padding: const EdgeInsets.fromLTRB(5, 30, 5, 5),
                                 child: TextFormField(
                                   controller: _nameController,
                                   keyboardType: TextInputType.text,
                                   decoration: InputDecoration(
-                                    prefixIcon: Icon(
+                                    prefixIcon: const Icon(
                                       Icons.group,
                                       color: Colors.black,
                                     ),
                                     border: OutlineInputBorder(
-                                        borderSide:
-                                            BorderSide(color: Colors.black),
+                                        borderSide: const BorderSide(
+                                            color: Colors.black),
                                         borderRadius:
                                             BorderRadius.circular(30)),
                                     labelText: "Faculty Name",
@@ -127,16 +127,16 @@ class _LoginPage extends State<LoginPage> {
                                 ),
                               ),
                               Padding(
-                                padding: EdgeInsets.fromLTRB(5, 20, 5, 5),
+                                padding: const EdgeInsets.fromLTRB(5, 20, 5, 5),
                                 child: TextFormField(
                                   controller: _passwordController,
                                   keyboardType: TextInputType.text,
                                   decoration: InputDecoration(
-                                    prefixIcon:
-                                        Icon(Icons.lock, color: Colors.black),
+                                    prefixIcon: const Icon(Icons.lock,
+                                        color: Colors.black),
                                     border: OutlineInputBorder(
-                                        borderSide:
-                                            BorderSide(color: Colors.black),
+                                        borderSide: const BorderSide(
+                                            color: Colors.black),
                                         borderRadius:
                                             BorderRadius.circular(30)),
                                     labelText: "Password",
@@ -151,7 +151,7 @@ class _LoginPage extends State<LoginPage> {
                                 ),
                               ),
                               _wrongPass
-                                  ? Text(
+                                  ? const Text(
                                       "Wrong Password",
                                       style: TextStyle(color: Colors.red),
                                     )
@@ -175,8 +175,8 @@ class _LoginPage extends State<LoginPage> {
                                       var pwd = _passwordController.text;
                                       await loginFaculty(name, pwd)
                                           .then((value) {
-                                            print("value: ${value}");
-                                            print("value: ${value.runtimeType}");
+                                        print("value: ${value}");
+                                        print("value: ${value.runtimeType}");
                                         if (value == "0") {
                                           setState(() {
                                             _wrongPass = true;
@@ -185,19 +185,21 @@ class _LoginPage extends State<LoginPage> {
                                           setState(() {
                                             _wrongPass = false;
                                           });
-                                          Constants.prefs!.setBool("isLogin", true);
+                                          Constants.prefs!
+                                              .setBool("isLogin", true);
                                           Navigator.pushReplacement(
                                               context,
                                               MaterialPageRoute(
                                                 builder: (context) =>
-                                                    HomePage(),
+                                                    const HomePage(),
                                               ));
-                                          print("** login s:${Constants.prefs?.getBool("isLogin")}");
+                                          print(
+                                              "** login s:${Constants.prefs?.getBool("isLogin")}");
                                         }
                                       });
                                     }
                                   },
-                                  child: Text('Login',
+                                  child: const Text('Login',
                                       style: TextStyle(
                                         fontSize: 20,
                                       )),
@@ -238,7 +240,7 @@ class _LoginPage extends State<LoginPage> {
     var finalRespoanse = jsonDecode(res.body);
     if (finalRespoanse["success"] == 1) {
       Constants.prefs!.setString("fid", finalRespoanse["fid"]);
-    }else{
+    } else {
       Constants.prefs!.setString("fid", "");
     }
     return finalRespoanse["success"].toString();

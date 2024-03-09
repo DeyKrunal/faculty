@@ -1,6 +1,4 @@
 import 'dart:convert';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:project_management_system/utils/all_data.dart';
 import 'package:project_management_system/utils/thems.dart';
@@ -21,7 +19,6 @@ class _GroupDetailsState extends State<GroupDetails> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getAttendence(ApiData.groupDataList[widget.index].grpid);
     x = ApiData.groupDataList[widget.index].gsid;

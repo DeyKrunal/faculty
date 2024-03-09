@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import '../models/event.dart';
 import 'package:project_management_system/utils/constants.dart';
 import 'package:project_management_system/utils/thems.dart';
@@ -20,7 +22,7 @@ class _AddScheduleState extends State<AddSchedule> {
   DateTime focusedDay = DateTime.now();
   TimeOfDay startTTime = TimeOfDay.now();
   TimeOfDay endTime = TimeOfDay.now();
-  late List<Map<String,dynamic>> jsondata;
+  late List<Map<String, dynamic>> jsondata;
   TextEditingController _eventController = TextEditingController();
 
   @override
@@ -31,11 +33,10 @@ class _AddScheduleState extends State<AddSchedule> {
     fetchScheduleData();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xffF2F2F5FF),
+      backgroundColor: const Color(0xffF2F2F5FF),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(29.0),
@@ -46,7 +47,7 @@ class _AddScheduleState extends State<AddSchedule> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
                 ),
-                padding: EdgeInsets.all(10),
+                padding: const EdgeInsets.all(10),
                 child: TableCalendar(
                   focusedDay: selectedDay,
                   firstDay: DateTime(1990),
@@ -74,85 +75,67 @@ class _AddScheduleState extends State<AddSchedule> {
               ),
               const SizedBox(height: 10),
               Expanded(
-                  child: SingleChildScrollView(
-                    child: FutureBuilder(
-                      future: fetchData(),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          List? jsonData = snapshot.data;
-                          return Column(
-                            children: jsonData!.map((data) {
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                                child: Card(
-                                  elevation: 3,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
-                                  child: ListTile(
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                                    tileColor: Colors.grey[300],
-                                    leading: Icon(Icons.event, color: Colors.blue),
-                                    title: Text(
-                                      data['title'],
-                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
+                child: SingleChildScrollView(
+                  child: FutureBuilder(
+                    future: fetchData(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        List? jsonData = snapshot.data;
+                        return Column(
+                          children: jsonData!
+                              .map((data) {
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 8.0, horizontal: 16.0),
+                                  child: Card(
+                                    elevation: 3,
+                                    child: ListTile(
+                                      tileColor: Colors.white54,
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              horizontal: 20.0, vertical: 10.0),
+                                      leading: const Icon(Icons.event,
+                                          color: Colors.blue),
+                                      title: Text(
+                                        data['title'],
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16.0),
+                                      ),
+                                      subtitle: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const SizedBox(height: 5.0),
+                                          Text(
+                                            'Date: ${data['date']}',
+                                            style: const TextStyle(
+                                                color: Colors.black87),
+                                          ),
+                                          const SizedBox(height: 5.0),
+                                          Text(
+                                            'Time: ${DateFormat.jm().format(DateFormat("HH:mm:ss").parse(data['start']))} - ${DateFormat.jm().format(DateFormat("HH:mm:ss").parse(data['end']))}',
+                                            style: const TextStyle(
+                                                color: Colors.black87),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                    subtitle: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        SizedBox(height: 5.0),
-                                        Text(
-                                          'Date: ${data['date']}',
-                                          style: TextStyle(color: Colors.black87),
-                                        ),
-                                        SizedBox(height: 5.0),
-                                        Text(
-                                          'Time: ${data['start']} - ${data['end']}',
-                                          style: TextStyle(color: Colors.black87),
-                                        ),
-                                      ],
-                                    ),
                                   ),
-                                ),
-                              );
-                            }).toList(),
-                          );
-                        } else if (snapshot.hasError) {
-                          return Text('Error fetching data');
-                        }
-                        return Center(child: CircularProgressIndicator());
-                      },
-                    ),
-                  )
-              )
-              // Expanded(
-              //   child: selectedEvents[selectedDay]?.isEmpty ?? true
-              //       ? Container(
-              //           padding: EdgeInsets.all(20),
-              //           decoration: BoxDecoration(
-              //             color: Colors.white,
-              //             borderRadius: BorderRadius.circular(20),
-              //           ),
-              //           alignment: Alignment.center,
-              //           child: Text("No events for this date"),
-              //         )
-              //       : ListView.builder(
-              //           itemCount: selectedEvents[selectedDay]?.length ?? 0,
-              //           itemBuilder: (context, index) {
-              //             return Container(
-              //               padding: EdgeInsets.all(20),
-              //               decoration: BoxDecoration(
-              //                 color: Colors.white,
-              //                 borderRadius: BorderRadius.circular(20),
-              //               ),
-              //               alignment: Alignment.center,
-              //               child: Text(
-              //                 selectedEvents[selectedDay]![index].title,
-              //               ),
-              //             );
-              //           },
-              //         ),
-              // ),
+                                );
+                              })
+                              .toList()
+                              .reversed
+                              .toList(),
+                        );
+                      } else if (snapshot.hasError) {
+                        return const Text('Error fetching data');
+                      }
+                      return const Center(child: CircularProgressIndicator());
+                    },
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -161,102 +144,127 @@ class _AddScheduleState extends State<AddSchedule> {
         backgroundColor: MyAppTheme.primaryColor,
         onPressed: () => showDialog(
           context: context,
-          builder: (context) => AlertDialog(
-            title: Text("Add Event"),
-            content: Container(
-              height: 250,
-              child: Column(
-                children: [
-                  TextFormField(
-                    controller: _eventController,
-                    decoration: InputDecoration(labelText: 'Event Title'),
-                  ),
-                  SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Center(
-                        child: Column(
+          builder: (context) => StatefulBuilder(builder: (context, setstate) {
+            return AlertDialog(
+              title: const Text("Add Event"),
+              content: Container(
+                height: 250,
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: _eventController,
+                      decoration:
+                          const InputDecoration(labelText: 'Event Title'),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Center(
+                          child: Column(
+                            children: [
+                              const Text("Start Time:"),
+                              const SizedBox(height: 10),
+                              ElevatedButton(
+                                onPressed: () async {
+                                  final pickedTime = await showTimePicker(
+                                    context: context,
+                                    initialTime: TimeOfDay.now(),
+                                    builder:
+                                        (BuildContext context, Widget? child) {
+                                      return MediaQuery(
+                                        data: MediaQuery.of(context).copyWith(
+                                            alwaysUse24HourFormat: false),
+                                        child: child!,
+                                      );
+                                    },
+                                  );
+                                  setstate(() {
+                                    startTTime = pickedTime!;
+                                  });
+                                  print("*** startTime: $startTTime");
+                                },
+                                child: const Text("Select Time"),
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                  "${startTTime.hourOfPeriod}:${startTTime.minute} ${startTTime.period == DayPeriod.am ? 'AM' : 'PM'}"),
+                            ],
+                          ),
+                        ),
+                        Column(
                           children: [
-                            Text("Start Time:"),
-                            SizedBox(height: 10,),
+                            const Text("End Time:"),
+                            const SizedBox(height: 10),
                             ElevatedButton(
-                              onPressed: () => _selectTime(context, isStartTime: true),
-                              child: Text("Select Time"),
+                              onPressed: () async {
+                                final pickedTime = await showTimePicker(
+                                  context: context,
+                                  initialTime: TimeOfDay.now(),
+                                  builder:
+                                      (BuildContext context, Widget? child) {
+                                    return MediaQuery(
+                                      data: MediaQuery.of(context).copyWith(
+                                          alwaysUse24HourFormat: false),
+                                      child: child!,
+                                    );
+                                  },
+                                );
+                                setstate(() {
+                                  endTime = pickedTime!;
+                                });
+                                print("*** endTime: $endTime");
+                              },
+                              child: const Text("Select Time"),
                             ),
-                            SizedBox(height: 10,),
-                            Text(startTTime != null
-                                ? "${startTTime.hour}:${startTTime.minute}"
-                                : "Select a time"),
+                            const SizedBox(height: 10),
+                            Text(
+                                "${endTime.hourOfPeriod}:${endTime.minute} ${endTime.period == DayPeriod.am ? 'AM' : 'PM'}"),
                           ],
                         ),
-                      ),
-                      Column(
-                        children: [
-                          Text("End Time:"),
-                          SizedBox(height: 10),
-                          ElevatedButton(
-                            onPressed: () => _selectTime(context, isStartTime: false),
-                            child: Text("Select Time"),
-                          ),
-                          SizedBox(height: 10,),
-                          Text(endTime != null
-                              ? "${endTime!.hour}:${endTime!.minute}"
-                              : "Select a time"),
-                        ],
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 16),
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //   children: [
-                  //
-                  //
-                  //   ],
-                  // ),
-                ],
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
               ),
-            ),
-            actions: [
-              TextButton(
-                child: Text("Cancel"),
-                onPressed: () => Navigator.pop(context),
-              ),
-              TextButton(
-                child: Text("Ok"),
-                onPressed: () async {
-                  if (_eventController.text.isEmpty ||
-                      startTTime == null ||
-                      endTime == null) {
-                    // Handle empty fields
-                    return;
-                  }
+              actions: [
+                TextButton(
+                  child: const Text("Cancel"),
+                  onPressed: () => Navigator.pop(context),
+                ),
+                TextButton(
+                  child: const Text("Ok"),
+                  onPressed: () async {
+                    if (_eventController.text.isEmpty) {
+                      // Handle empty fields
+                      return;
+                    }
 
-                  // Send request to add schedule
-                  await addSchedule(
-                    _eventController.text,
-                    startTTime,
-                    endTime,
-                  );
+                    // Send request to add schedule
+                    await addSchedule(
+                      _eventController.text,
+                      startTTime,
+                      endTime,
+                    );
 
-                  // Close the dialog and clear the controller
-                  Navigator.pop(context);
-                  _eventController.clear();
+                    // Close the dialog and clear the controller
+                    Navigator.pop(context);
+                    _eventController.clear();
 
-                  // Fetch updated schedule data
-                  await fetchScheduleData();
-                },
-              ),
-            ],
-          )
-          ,
+                    // Fetch updated schedule data
+                    await fetchScheduleData();
+                  },
+                ),
+              ],
+            );
+          }),
         ),
-        label: Text(
+        label: const Text(
           "Add Event",
           style: TextStyle(color: Colors.white),
         ),
-        icon: Icon(
+        icon: const Icon(
           Icons.add,
           color: Colors.white,
         ),
@@ -296,9 +304,11 @@ class _AddScheduleState extends State<AddSchedule> {
     updateEvents(data);
   }
 
-  Future<void> addSchedule(String eventTitle, TimeOfDay startTime, TimeOfDay endTime) async {
+  Future<void> addSchedule(
+      String eventTitle, TimeOfDay startTime, TimeOfDay endTime) async {
     final response = await http.post(
-      Uri.parse('https://project-pilot.000webhostapp.com/API/insert_schedule.php'),
+      Uri.parse(
+          'https://project-pilot.000webhostapp.com/API/insert_schedule.php'),
       body: {
         'fid': '${Constants.prefs!.getString("fid")}',
         'date': flutterDateTimeToSqlDate(selectedDay),
@@ -315,17 +325,9 @@ class _AddScheduleState extends State<AddSchedule> {
       // Parse the response to get the added event details
       final addedEvent = jsonDecode(response.body);
 
-      // Update the selectedEvents map with the new event
-      DateTime date = DateTime.parse(addedEvent['date']);
-      if (selectedEvents[date] == null) {
-        selectedEvents[date] = [];
-      }
-      selectedEvents[date]?.add(Event(
-        title: addedEvent['title'],
-        date: addedEvent['date'],
-        startTime: addedEvent['start'],
-        endTime: addedEvent['end'],
-      ));
+      print("added event: ${addedEvent}");
+
+      await fetchScheduleData();
 
       // Update the state to trigger a rebuild of the UI
       setState(() {});
@@ -341,7 +343,7 @@ class _AddScheduleState extends State<AddSchedule> {
       selectedEvents[date]?.add(Event(
         endTime: item["end"],
         startTime: item["start"],
-        date:item["date"],
+        date: DateTime.parse(item["date"]),
         title: item['title'],
         // Add other properties as needed (start, end, etc.)
       ));
@@ -350,7 +352,8 @@ class _AddScheduleState extends State<AddSchedule> {
     setState(() {});
   }
 
-  Future<void> _selectTime(BuildContext context, {required bool isStartTime}) async {
+  Future<void> _selectTime(BuildContext context,
+      {required bool isStartTime}) async {
     final pickedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
@@ -362,16 +365,12 @@ class _AddScheduleState extends State<AddSchedule> {
       },
     );
 
-    print("picked time: ${pickedTime}");
-
     if (pickedTime != null) {
       setState(() {
         if (isStartTime) {
           startTTime = pickedTime;
-          print("start time: ${startTTime}");
         } else {
           endTime = pickedTime;
-          print("end time: ${endTime}");
         }
       });
     }
@@ -382,16 +381,17 @@ class _AddScheduleState extends State<AddSchedule> {
     dateTime = dateTime.toLocal();
 
     // Format as SQL date (yyyy-MM-dd)
-    String formattedDate = "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
+    String formattedDate =
+        "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
 
     return formattedDate;
   }
 
   String flutterTimeOfDayToSqlTime(TimeOfDay timeOfDay) {
     // Format as SQL time (HH:mm:ss)
-    String formattedTime = "${timeOfDay.hour.toString().padLeft(2, '0')}:${timeOfDay.minute.toString().padLeft(2, '0')}:00";
+    String formattedTime =
+        "${timeOfDay.hour.toString().padLeft(2, '0')}:${timeOfDay.minute.toString().padLeft(2, '0')}:00";
 
     return formattedTime;
   }
-
 }

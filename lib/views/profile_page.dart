@@ -1,9 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:project_management_system/utils/constants.dart';
 import 'package:project_management_system/views/Login.dart';
-
 import '../utils/all_data.dart';
 import '../utils/thems.dart';
 
@@ -13,12 +10,10 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-
   @override
   void initState() {
-    // TODO: implement initState
+    print("*** fid: ${Constants.prefs!.getString("fid")}");
     super.initState();
-    print("Hello");
   }
 
   @override
@@ -31,7 +26,7 @@ class _ProfilePageState extends State<ProfilePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              CircleAvatar(
+              const CircleAvatar(
                 maxRadius: 65,
                 backgroundImage: AssetImage("assets/images/men.jpg"),
               ),
@@ -39,10 +34,10 @@ class _ProfilePageState extends State<ProfilePage> {
                 height: 20,
               ),
               Text(
-                "${ApiData.facultyData!.fName}",
+                "${ApiData.facultyData?.fName}",
                 style: TextStyle(fontWeight: FontWeight.w900, fontSize: 26),
               ),
-              Text("${ApiData.facultyData!.fEmail}"),
+              Text("${ApiData.facultyData?.fEmail}"),
               const SizedBox(height: 15),
               Container(
                 child: Column(
@@ -61,7 +56,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           color: Colors.black54,
                         ),
                         title: Text(
-                          '+91 ${ApiData.facultyData!.fPhno}',
+                          '+91 ${ApiData.facultyData?.fPhno}',
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold),
                         ),
@@ -83,7 +78,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           color: Colors.black54,
                         ),
                         title: Text(
-                          '${ApiData.facultyData!.fDesc}',
+                          '${ApiData.facultyData?.fDesc}',
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold),
                         ),
@@ -102,7 +97,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       child: ListTile(
                         leading: Icon(Icons.book, color: Colors.black54),
                         title: Text(
-                          '${ApiData.facultyData!.fQualif}',
+                          '${ApiData.facultyData?.fQualif}',
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold),
                         ),
@@ -125,7 +120,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           color: Colors.black54,
                         ),
                         title: Text(
-                          '${ApiData.facultyData!.fAddress}',
+                          '${ApiData.facultyData?.fAddress}',
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold),
                         ),
@@ -148,7 +143,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           color: Colors.black54,
                         ),
                         title: Text(
-                          'Experience: ${ApiData.facultyData!.fExp}',
+                          'Experience: ${ApiData.facultyData?.fExp}',
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold),
                         ),

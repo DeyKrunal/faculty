@@ -1,7 +1,5 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:project_management_system/models/faculty.dart';
 import 'package:project_management_system/utils/all_data.dart';
 import 'package:project_management_system/utils/constants.dart';
@@ -11,7 +9,6 @@ import 'package:project_management_system/views/dash_board.dart';
 import 'package:project_management_system/views/group_list.dart';
 import 'package:project_management_system/views/profile_page.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../models/group.dart';
 
@@ -23,12 +20,16 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List pages = [DashBoard(), GroupList(), AddSchedule(), ProfilePage()];
+  List pages = [
+    const DashBoard(),
+    const GroupList(),
+    const AddSchedule(),
+    ProfilePage()
+  ];
   int index = 0;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getTotalGroup(Constants.prefs!.getString("fid")!);
   }
@@ -36,35 +37,35 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xfff5f6fb),
+      backgroundColor: const Color(0xfff5f6fb),
       bottomNavigationBar: SalomonBottomBar(
         backgroundColor: Colors.white,
-        margin: EdgeInsets.all(20),
+        margin: const EdgeInsets.all(20),
         currentIndex: index,
         onTap: (i) => setState(() {
-          print("** index: ${i}");
+          print("** index: $i");
           index = i;
         }),
         items: [
           /// Home
           SalomonBottomBarItem(
-            icon: Icon(Icons.home),
-            title: Text("Home"),
+            icon: const Icon(Icons.home),
+            title: const Text("Home"),
             selectedColor: MyAppTheme.secondaryColor,
           ),
           SalomonBottomBarItem(
-            icon: Icon(Icons.group),
-            title: Text("Group"),
+            icon: const Icon(Icons.group),
+            title: const Text("Group"),
             selectedColor: MyAppTheme.secondaryColor,
           ),
           SalomonBottomBarItem(
-            icon: Icon(Icons.calendar_month),
-            title: Text("Schedule"),
+            icon: const Icon(Icons.calendar_month),
+            title: const Text("Schedule"),
             selectedColor: MyAppTheme.secondaryColor,
           ),
           SalomonBottomBarItem(
-            icon: Icon(Icons.person),
-            title: Text("Profile"),
+            icon: const Icon(Icons.person),
+            title: const Text("Profile"),
             selectedColor: MyAppTheme.secondaryColor,
           ),
         ],
@@ -74,8 +75,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> getTotalGroup(String facultyId) async {
-    var body = {"fid": "$facultyId"};
-    print("** group data loaded: ${ApiData.totalGroupLoaded}");
+    var body = {"fid": facultyId};
+    // print("** group data loaded: ${ApiData.totalGroupLoaded}");
 
     var res = await http.post(
         Uri.parse(
@@ -85,7 +86,7 @@ class _HomePageState extends State<HomePage> {
     var resStudent = await http.post(
         Uri.parse(
             "https://project-pilot.000webhostapp.com/API/total_students.php"),
-        body: {"fid": "$facultyId"});
+        body: {"fid": facultyId});
 
     Map totalGroup = jsonDecode(res.body);
     Map totalStudents = jsonDecode(resStudent.body);
@@ -95,42 +96,43 @@ class _HomePageState extends State<HomePage> {
     var resGroupData = await http.post(
         Uri.parse(
             "https://project-pilot.000webhostapp.com/API/group_progress_detail.php"),
-        body: {"fid": "$facultyId"});
+        body: {"fid": facultyId});
 
     // Parse the JSON response into a List<Map<String, dynamic>>
     if (resGroupData.body.isNotEmpty) {
       List<Map<String, dynamic>> responseData =
           List<Map<String, dynamic>>.from(jsonDecode(resGroupData.body));
     }
-    print("groups: ${resGroupData.body}");
-    print("groups: ${resGroupData.body.isEmpty}");
+    // print("groups: ${resGroupData.body}");
+    // print("groups: ${resGroupData.body.isEmpty}");
 
     // Faculty Data
     var resFacultyData = await http.post(
         Uri.parse(
             "https://project-pilot.000webhostapp.com/API/view_faculty.php"),
-        body: {"fid": "$facultyId"});
+        body: {"fid": facultyId});
     Map facultyData = jsonDecode(resFacultyData.body);
-    print("** faculty Data: ${facultyData}");
+    // print("** faculty Data: ${facultyData}");
 
-    var checkGroupProgress = await http.get(
-        Uri.parse(
-            "https://project-pilot.000webhostapp.com/API/check_progress_data.php"));
+    var checkGroupProgress = await http.get(Uri.parse(
+        "https://project-pilot.000webhostapp.com/API/check_progress_data.php"));
 
     var resGroupProgressData = await http.post(
         Uri.parse(
             "https://project-pilot.000webhostapp.com/API/group_progress_detail.php"),
-        body: {"fid": "$facultyId"});
+        body: {"fid": facultyId});
 
     List groupJsonData = json.decode(resGroupProgressData.body);
-    print("*** group data: ${groupJsonData[0]}");
+    // print("*** group data: ${resGroupProgressData.body}");
 
     setState(() {
       ApiData.totalGroups = totalGroup['count'];
       ApiData.totalStudents = totalStudents['gcount'];
-      ApiData.groupDataList = groupJsonData.map((json) => GroupData.fromJson(json)).toList();
+      ApiData.groupDataList =
+          groupJsonData.map((json) => GroupData.fromJson(json)).toList();
       print("group data: ${ApiData.groupDataList}");
       ApiData.totalGroupLoaded = true;
+      ApiData.facultyData = Faculty.fromJson(jsonDecode(resFacultyData.body));
     });
   }
 }
