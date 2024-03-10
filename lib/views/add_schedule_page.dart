@@ -64,13 +64,17 @@ class _AddScheduleState extends State<AddSchedule> {
                     setState(() {
                       selectedDay = selectDay;
                       focusedDay = focusDay;
-                      print(focusDay);
+                      print(
+                          "*** event for day: ${selectedEvents[DateTime.parse("${selectedDay.toString()}").toLocal()]}");
+                      print(
+                          "*** selected day: ${DateFormat('yyyy-MM-dd HH:mm:ss.SSS').format(selectDay)}");
+                      print("*** selected day: $selectedDay}");
                     });
                   },
                   selectedDayPredicate: (DateTime date) {
                     return isSameDay(selectedDay, date);
                   },
-                  eventLoader: _getEventsfromDay,
+                  eventLoader: (day) => _getEventsfromDay(day),
                 ),
               ),
               const SizedBox(height: 10),
@@ -279,7 +283,7 @@ class _AddScheduleState extends State<AddSchedule> {
   }
 
   List<Event> _getEventsfromDay(DateTime date) {
-    print('** event for day: ${selectedEvents[date]}');
+    date = date.toLocal();
     return selectedEvents[date] ?? [];
   }
 
@@ -335,20 +339,23 @@ class _AddScheduleState extends State<AddSchedule> {
   }
 
   void updateEvents(List<dynamic> data) {
+    selectedEvents = {};
+
     for (var item in data) {
-      DateTime date = DateTime.parse(item['date']);
+      DateTime date = DateTime.parse(item['date']).toLocal();
       if (selectedEvents[date] == null) {
         selectedEvents[date] = [];
       }
       selectedEvents[date]?.add(Event(
         endTime: item["end"],
         startTime: item["start"],
-        date: DateTime.parse(item["date"]),
+        date: date,
         title: item['title'],
         // Add other properties as needed (start, end, etc.)
       ));
     }
-    print("*** selected event: ${selectedEvents}");
+
+    print("*** selected events: $selectedEvents");
     setState(() {});
   }
 

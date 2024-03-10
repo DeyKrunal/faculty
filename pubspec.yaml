@@ -47,6 +47,7 @@ dependencies:
   shared_preferences:
   rive:
   shimmer:
+  syncfusion_flutter_sliders: ^24.2.9
 
 dev_dependencies:
   flutter_test:

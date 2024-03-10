@@ -30,8 +30,6 @@ class _LoginPage extends State<LoginPage> {
       "active",
       autoplay: false,
     );
-    Constants.getPrefrence();
-
     super.initState();
   }
 

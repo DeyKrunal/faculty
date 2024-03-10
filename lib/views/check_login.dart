@@ -14,6 +14,7 @@ class _CheckLoginState extends State<CheckLogin> {
   @override
   void initState() {
     super.initState();
+    Constants.getPrefrence();
   }
 
   @override
