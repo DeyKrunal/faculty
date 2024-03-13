@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:ffi';
-
 class GroupData {
   String gsid;
   String name1;

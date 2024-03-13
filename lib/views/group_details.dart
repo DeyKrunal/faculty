@@ -14,80 +14,82 @@ class GroupDetails extends StatefulWidget {
 }
 
 class _GroupDetailsState extends State<GroupDetails> {
-  String totalAttendence = "0";
-  var x ;
+  String totalAttendance = "0";
+  var x;
 
   @override
   void initState() {
     super.initState();
-    getAttendence(ApiData.groupDataList[widget.index].grpid);
+    getAttendance(ApiData.groupDataList[widget.index].grpid);
     x = ApiData.groupDataList[widget.index].gsid;
   }
 
   @override
   Widget build(BuildContext context) {
+    var screenSize = MediaQuery.of(context).size;
+    bool isLargeScreen = screenSize.width > 600;
+
     return Scaffold(
-      // backgroundColor: Color(0xfff5f6fb),
       appBar: AppBar(
         title: Text("Group Details"),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: EdgeInsets.all(isLargeScreen ? 20.0 : 10.0),
           child: Column(
             children: [
-              ApiData.groupDataList[widget.index].name1 == ""
-                  ? Container()
-                  : StudentDetails(
-                      name: ApiData.groupDataList[widget.index].name1,
-                      email: ApiData.groupDataList[widget.index].email1,
-                      div: ApiData.groupDataList[widget.index].div1,
-                      mobileNo: ApiData.groupDataList[widget.index].phno1,
-                      rollNo: ApiData.groupDataList[widget.index].rn1,
-                    ),
-              ApiData.groupDataList[widget.index].name2 == ""
-                  ? Container()
-                  : StudentDetails(
-                      margin: 30,
-                      name: ApiData.groupDataList[widget.index].name2,
-                      email: ApiData.groupDataList[widget.index].email2,
-                      div: ApiData.groupDataList[widget.index].div2,
-                      mobileNo: ApiData.groupDataList[widget.index].phno2,
-                      rollNo: ApiData.groupDataList[widget.index].rn2,
-                    ),
-              ApiData.groupDataList[widget.index].name3 == ""
-                  ? Container()
-                  : StudentDetails(
-                      margin: 30,
-                      name: ApiData.groupDataList[widget.index].name3,
-                      email: ApiData.groupDataList[widget.index].email3,
-                      div: ApiData.groupDataList[widget.index].div3,
-                      mobileNo: ApiData.groupDataList[widget.index].phno3,
-                      rollNo: ApiData.groupDataList[widget.index].rn3,
-                    ),
-              ApiData.groupDataList[widget.index].name4 == ""
-                  ? Container()
-                  : StudentDetails(
-                      margin: 30,
-                      name: ApiData.groupDataList[widget.index].name4,
-                      email: ApiData.groupDataList[widget.index].email4,
-                      div: ApiData.groupDataList[widget.index].div4,
-                      mobileNo: ApiData.groupDataList[widget.index].phno4,
-                      rollNo: ApiData.groupDataList[widget.index].rn4,
-                    ),
-              const SizedBox(height: 30),
+              if (ApiData.groupDataList[widget.index].name1 != "")
+                StudentDetails(
+                  name: ApiData.groupDataList[widget.index].name1,
+                  email: ApiData.groupDataList[widget.index].email1,
+                  div: ApiData.groupDataList[widget.index].div1,
+                  mobileNo: ApiData.groupDataList[widget.index].phno1,
+                  rollNo: ApiData.groupDataList[widget.index].rn1,
+                  isLargeScreen: isLargeScreen,
+                ),
+              if (ApiData.groupDataList[widget.index].name2 != "")
+                StudentDetails(
+                  margin: isLargeScreen ? 30 : 10,
+                  name: ApiData.groupDataList[widget.index].name2,
+                  email: ApiData.groupDataList[widget.index].email2,
+                  div: ApiData.groupDataList[widget.index].div2,
+                  mobileNo: ApiData.groupDataList[widget.index].phno2,
+                  rollNo: ApiData.groupDataList[widget.index].rn2,
+                  isLargeScreen: isLargeScreen,
+                ),
+              if (ApiData.groupDataList[widget.index].name3 != "")
+                StudentDetails(
+                  margin: isLargeScreen ? 30 : 10,
+                  name: ApiData.groupDataList[widget.index].name3,
+                  email: ApiData.groupDataList[widget.index].email3,
+                  div: ApiData.groupDataList[widget.index].div3,
+                  mobileNo: ApiData.groupDataList[widget.index].phno3,
+                  rollNo: ApiData.groupDataList[widget.index].rn3,
+                  isLargeScreen: isLargeScreen,
+                ),
+              if (ApiData.groupDataList[widget.index].name4 != "")
+                StudentDetails(
+                  margin: isLargeScreen ? 30 : 10,
+                  name: ApiData.groupDataList[widget.index].name4,
+                  email: ApiData.groupDataList[widget.index].email4,
+                  div: ApiData.groupDataList[widget.index].div4,
+                  mobileNo: ApiData.groupDataList[widget.index].phno4,
+                  rollNo: ApiData.groupDataList[widget.index].rn4,
+                  isLargeScreen: isLargeScreen,
+                ),
+              SizedBox(height: isLargeScreen ? 30 : 10),
               Container(
                 width: double.maxFinite,
-                padding: EdgeInsets.all(30),
+                padding: EdgeInsets.all(isLargeScreen ? 30 : 20),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(30),
+                  borderRadius: BorderRadius.circular(isLargeScreen ? 30 : 15),
                   boxShadow: [
                     BoxShadow(
                       color: MyAppTheme.primaryColor,
                       offset: Offset(10, 10),
-                    )
+                    ),
                   ],
                   border: Border(
                     left: BorderSide(color: MyAppTheme.primaryColorLight),
@@ -98,26 +100,26 @@ class _GroupDetailsState extends State<GroupDetails> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Text("Group Total Attendance: $totalAttendence"),
+                    Text("Group Total Attendance: $totalAttendance"),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         GestureDetector(
-                          onTap:(){
+                          onTap: () {
                             _addAttendance();
-                        },
+                          },
                           child: Container(
-                            width: 300,
+                            width: isLargeScreen ? 300 : double.maxFinite,
                             decoration: BoxDecoration(
                               color: MyAppTheme.primaryColor,
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            padding: EdgeInsets.all(20),
+                            padding: EdgeInsets.all(isLargeScreen ? 20 : 15),
                             alignment: Alignment.center,
                             child: Text(
                               'Add Attendance',
                               style: TextStyle(
-                                fontSize: 18,
+                                fontSize: isLargeScreen ? 18 : 16,
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -129,7 +131,7 @@ class _GroupDetailsState extends State<GroupDetails> {
                   ],
                 ),
               ),
-              const SizedBox(height: 30),
+              SizedBox(height: isLargeScreen ? 30 : 10),
             ],
           ),
         ),
@@ -137,62 +139,63 @@ class _GroupDetailsState extends State<GroupDetails> {
     );
   }
 
-  Future<void> getAttendence(String gid) async {
+  Future<void> getAttendance(String gid) async {
     var res = await http.post(
-        Uri.parse(
-            "https://project-pilot.000webhostapp.com/API/view_attandence.php"),
-        body: {"gid": "$gid"});
+      Uri.parse("https://project-pilot.000webhostapp.com/API/view_attendance.php"),
+      body: {"gid": "$gid"},
+    );
 
     print("group progress: ${res.body}");
-    totalAttendence = jsonDecode(res.body)["count"];
+    totalAttendance = jsonDecode(res.body)["count"];
     setState(() {});
   }
 
   Future<void> _addAttendance() async {
     print("X = ${x}");
     var res = await http.post(
-        Uri.parse(
-            "https://project-pilot.000webhostapp.com/API/insert_attendance.php"),
-        body: {"gid": "$x"});
+      Uri.parse("https://project-pilot.000webhostapp.com/API/insert_attendance.php"),
+      body: {"gid": "$x"},
+    );
     print("group attendance: ${res.body}");
-    getAttendence(x);
+    getAttendance(x);
     setState(() {});
   }
-
 }
 
 class StudentDetails extends StatelessWidget {
-  String name;
-  String email;
-  String div;
-  String rollNo;
-  String mobileNo;
-  double margin;
+  final String name;
+  final String email;
+  final String div;
+  final String rollNo;
+  final String mobileNo;
+  final double margin;
+  final bool isLargeScreen;
 
-  StudentDetails({
-    super.key,
+  const StudentDetails({
+    Key? key,
     required this.name,
     required this.email,
     required this.div,
     required this.mobileNo,
     required this.rollNo,
     this.margin = 0,
-  });
+    required this.isLargeScreen,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.maxFinite,
       margin: EdgeInsets.only(top: margin),
-      padding: EdgeInsets.all(30),
+      padding: EdgeInsets.all(isLargeScreen ? 30 : 20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(isLargeScreen ? 30 : 15),
         boxShadow: [
           BoxShadow(
             color: MyAppTheme.primaryColor,
             offset: Offset(10, 10),
-          )
+          ),
         ],
         border: Border(
           left: BorderSide(color: MyAppTheme.primaryColorLight),
@@ -208,7 +211,7 @@ class StudentDetails extends StatelessWidget {
               Text(
                 name,
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: isLargeScreen ? 18 : 16,
                   fontWeight: FontWeight.bold,
                   color: MyAppTheme.primaryColor,
                 ),
@@ -220,20 +223,20 @@ class StudentDetails extends StatelessWidget {
               Text(
                 email,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: isLargeScreen ? 16 : 14,
                   fontWeight: FontWeight.w400,
                   color: Colors.grey,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: isLargeScreen ? 8 : 5),
           Row(
             children: [
               Container(
-                margin: EdgeInsets.only(right: 20),
-                height: 100,
-                width: 100,
+                margin: EdgeInsets.only(right: isLargeScreen ? 20 : 10),
+                height: isLargeScreen ? 100 : 70,
+                width: isLargeScreen ? 100 : 70,
                 decoration: BoxDecoration(
                   color: Colors.grey.shade200,
                   shape: BoxShape.circle,
@@ -247,7 +250,7 @@ class StudentDetails extends StatelessWidget {
                       Text(
                         "Div  ",
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: isLargeScreen ? 18 : 16,
                           fontWeight: FontWeight.w700,
                           color: MyAppTheme.primaryColor,
                         ),
@@ -262,7 +265,7 @@ class StudentDetails extends StatelessWidget {
                       Text(
                         "Roll No  ",
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: isLargeScreen ? 18 : 16,
                           fontWeight: FontWeight.w700,
                           color: MyAppTheme.primaryColor,
                         ),
@@ -276,7 +279,7 @@ class StudentDetails extends StatelessWidget {
                         Icons.phone,
                         color: MyAppTheme.primaryColor,
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: isLargeScreen ? 8 : 5),
                       Text("+91: $mobileNo"),
                     ],
                   ),
