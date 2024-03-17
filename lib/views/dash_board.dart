@@ -1,11 +1,16 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
+import 'package:project_management_system/models/group.dart';
 import 'package:project_management_system/utils/constants.dart';
 import 'package:project_management_system/utils/thems.dart';
 import 'package:project_management_system/views/group_details.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:simple_progress_indicators/simple_progress_indicators.dart';
 import '../utils/all_data.dart';
+import 'package:http/http.dart' as http;
 
 class DashBoard extends StatefulWidget {
   const DashBoard({super.key});
@@ -15,25 +20,15 @@ class DashBoard extends StatefulWidget {
 }
 
 class _DashBoardState extends State<DashBoard> {
-  bool reload = false;
+  bool _isCountLoaded = false;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    // _totalGroupLoaded = false;
-    print("FID: ${Constants.prefs!.getString("fid")}");
   }
 
   @override
   Widget build(BuildContext context) {
-    Future.delayed(Duration(seconds: 5)).then((value) {
-      // build(context);
-      setState(() {
-        reload = true;
-      });
-    });
-
     return SafeArea(
       child: Column(
         children: [
@@ -81,7 +76,7 @@ class _DashBoardState extends State<DashBoard> {
                         height: 60,
                         width: 60,
                         decoration: BoxDecoration(
-                            image: DecorationImage(
+                            image: const DecorationImage(
                               image: AssetImage("assets/images/men.jpg"),
                             ),
                             border: Border.all(color: Colors.black12),
@@ -93,48 +88,49 @@ class _DashBoardState extends State<DashBoard> {
                 const SizedBox(height: 15),
                 Column(
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            margin: const EdgeInsets.only(left: 20),
-                            height: 150,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(40),
-                              color: const Color(0xff61c877),
-                            ),
-                            alignment: Alignment.center,
-                            child: ApiData.totalGroupLoaded
-                                ? Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        "Total Groups",
-                                        style: MyAppTheme.cardStyle,
-                                      ),
-                                      Text(
-                                        "${ApiData.totalGroups}",
-                                        style: MyAppTheme.cardStyle.copyWith(
-                                            fontSize: 25,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ],
-                                  )
-                                : const CircularProgressIndicator(),
-                          ),
-                        ),
-                        const SizedBox(width: 20),
-                        Expanded(
-                          child: Container(
-                            margin: const EdgeInsets.only(right: 20),
-                            height: 150,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(40),
-                              color: const Color(0xffff6157),
-                            ),
-                            alignment: Alignment.center,
-                            child: ApiData.totalGroupLoaded
-                                ? Column(
+                    FutureBuilder(
+                      future: _getTotalStudentsCount(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return Row(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                    margin: const EdgeInsets.only(left: 20),
+                                    height: 150,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(40),
+                                      color: const Color(0xff61c877),
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "Total Groups",
+                                          style: MyAppTheme.cardStyle,
+                                        ),
+                                        Text(
+                                          snapshot.data!["totalGroups"],
+                                          style: MyAppTheme.cardStyle.copyWith(
+                                              fontSize: 25,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    )),
+                              ),
+                              const SizedBox(width: 20),
+                              Expanded(
+                                child: Container(
+                                  margin: const EdgeInsets.only(right: 20),
+                                  height: 150,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(40),
+                                    color: const Color(0xffff6157),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
@@ -142,18 +138,49 @@ class _DashBoardState extends State<DashBoard> {
                                         style: MyAppTheme.cardStyle,
                                       ),
                                       Text(
-                                        "${ApiData.totalStudents}",
+                                        snapshot.data!["totalStudent"],
                                         style: MyAppTheme.cardStyle.copyWith(
                                           fontSize: 25,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                     ],
-                                  )
-                                : const CircularProgressIndicator(),
-                          ),
-                        ),
-                      ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        } else {
+                          return Row(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                  margin: const EdgeInsets.only(left: 20),
+                                  height: 150,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(40),
+                                    color: const Color(0xff61c877),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: const CircularProgressIndicator(),
+                                ),
+                              ),
+                              const SizedBox(width: 20),
+                              Expanded(
+                                child: Container(
+                                    margin: const EdgeInsets.only(right: 20),
+                                    height: 150,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(40),
+                                      color: const Color(0xffff6157),
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: const CircularProgressIndicator()),
+                              ),
+                            ],
+                          );
+                        }
+                      },
                     ),
                   ],
                 ),
@@ -169,7 +196,7 @@ class _DashBoardState extends State<DashBoard> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "Manage Attendence",
+                  "Manage Progress",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                   ),
@@ -181,7 +208,6 @@ class _DashBoardState extends State<DashBoard> {
 
           Expanded(
             child: Container(
-              // height: 295,
               width: double.infinity,
               decoration: BoxDecoration(
                 color: ApiData.totalGroupLoaded
@@ -192,18 +218,25 @@ class _DashBoardState extends State<DashBoard> {
               ),
               margin: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
               alignment: Alignment.center,
-              child: ApiData.totalGroupLoaded
-                  ? ListView.builder(
-                      itemCount: ApiData.groupDataList.length,
+              child: FutureBuilder(
+                future: _getGroupsDataWithProgress(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    var groupDataList = snapshot.data!
+                        .map((json) => GroupData.fromJson(json))
+                        .toList();
+                    return ListView.builder(
+                      itemCount: groupDataList.length,
                       itemBuilder: (context, index) {
                         return GestureDetector(
                           onTap: () {
-                            // print("ID = ${ApiData.groupDataList[index].gsid}");
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>
-                                      GroupDetails(index: index),
+                                  builder: (context) => GroupDetails(
+                                    groupDataList: groupDataList,
+                                    index: index,
+                                  ),
                                 ));
                           },
                           child: Container(
@@ -216,51 +249,45 @@ class _DashBoardState extends State<DashBoard> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Container(
-                                  child: Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.group,
-                                        color: Colors.grey,
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            ApiData
-                                                .groupDataList[index].groupName,
-                                            style: MyAppTheme.cardStyle
-                                                .copyWith(color: Colors.black),
-                                          ),
-                                          Container(
-                                            margin:
-                                                const EdgeInsets.only(top: 10),
-                                            width: 200,
-                                            child: ProgressBar(
-                                              value: ApiData
-                                                      .groupDataList[index]
-                                                      .count! /
-                                                  100,
-                                              // value: ApiData.groupDataList[index].count / 100,
-                                              width: 150,
-                                              backgroundColor:
-                                                  Color(0xffeff0f6),
-                                              gradient: LinearGradient(
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                                colors: [
-                                                  Color(0xffffce93),
-                                                  Color(0xffffce93),
-                                                ],
-                                              ),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.group,
+                                      color: MyAppTheme.primaryColor,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          groupDataList[index].groupName,
+                                          style: MyAppTheme.cardStyle
+                                              .copyWith(color: Colors.black),
+                                        ),
+                                        Container(
+                                          margin:
+                                              const EdgeInsets.only(top: 10),
+                                          width: 200,
+                                          child: ProgressBar(
+                                            value: groupDataList[index].count /
+                                                100,
+                                            width: 150,
+                                            backgroundColor:
+                                                const Color(0xffeff0f6),
+                                            gradient: const LinearGradient(
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                              colors: [
+                                                Color(0xffffce93),
+                                                Color(0xffffce93),
+                                              ],
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
                                 const SizedBox(
                                   height: 60,
@@ -272,8 +299,9 @@ class _DashBoardState extends State<DashBoard> {
                           ),
                         );
                       },
-                    )
-                  : ListView.builder(
+                    );
+                  } else {
+                    return ListView.builder(
                       itemBuilder: (context, index) => Shimmer.fromColors(
                         baseColor: Colors.grey[300]!,
                         // Customize your shimmer base color
@@ -289,11 +317,50 @@ class _DashBoardState extends State<DashBoard> {
                           ),
                         ),
                       ),
-                    ),
+                    );
+                  }
+                },
+              ),
             ),
           ),
         ],
       ),
     );
+  }
+
+  Future<Map> _getTotalStudentsCount() async {
+    var body = {"fid": "${Constants.prefs!.getString("fid")}"};
+    var res = await http.post(
+        Uri.parse(
+            "https://project-pilot.000webhostapp.com/API/group_count.php"),
+        body: body);
+
+    var resStudent = await http.post(
+        Uri.parse(
+            "https://project-pilot.000webhostapp.com/API/total_students.php"),
+        body: body);
+
+    Map totalGroup = jsonDecode(res.body);
+    Map totalStudents = jsonDecode(resStudent.body);
+
+    print("Total Groups: ${totalGroup["count"]}");
+    print("Total Students: ${totalStudents["gcount"]}");
+
+    Map result = {
+      "totalGroups": "${totalGroup["count"]}",
+      "totalStudent": "${totalStudents["gcount"]}",
+    };
+
+    return result;
+  }
+
+  Future<List> _getGroupsDataWithProgress() async {
+    var resGroupProgressData = await http.post(
+        Uri.parse(
+            "https://project-pilot.000webhostapp.com/API/group_progress_detail.php"),
+        body: {"fid": "${Constants.prefs!.getString("fid")}"});
+
+    List groupJsonData = json.decode(resGroupProgressData.body);
+    return groupJsonData;
   }
 }

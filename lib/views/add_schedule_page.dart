@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:project_management_system/components/timeline_item.dart';
 import '../models/event.dart';
 import 'package:project_management_system/utils/constants.dart';
 import 'package:project_management_system/utils/thems.dart';
@@ -24,18 +26,26 @@ class _AddScheduleState extends State<AddSchedule> {
   TimeOfDay endTime = TimeOfDay.now();
   late List<Map<String, dynamic>> jsondata;
   TextEditingController _eventController = TextEditingController();
+  // List colorsList = [Colors.pink, Colors.yellow, Colors.green, Colors.blue];
+  List colorsList = [MyAppTheme.primaryColor];
+  int colorCount = 0;
+  bool _hasData = false;
 
   @override
   void initState() {
     super.initState();
     selectedEvents = {};
     // Fetch schedule data when the widget is initialized
-    fetchScheduleData();
+    // fetchScheduleData();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Schedule'),
+        centerTitle: true,
+      ),
       backgroundColor: const Color(0xffF2F2F5FF),
       body: SafeArea(
         child: Padding(
@@ -64,11 +74,11 @@ class _AddScheduleState extends State<AddSchedule> {
                     setState(() {
                       selectedDay = selectDay;
                       focusedDay = focusDay;
-                      print(
-                          "*** event for day: ${selectedEvents[DateTime.parse("${selectedDay.toString()}").toLocal()]}");
-                      print(
-                          "*** selected day: ${DateFormat('yyyy-MM-dd HH:mm:ss.SSS').format(selectDay)}");
-                      print("*** selected day: $selectedDay}");
+                      // print(
+                      // //     "*** event for day: ${selectedEvents[DateTime.parse("${selectedDay.toString()}").toLocal()]}");
+                      // // print(
+                      // //     "*** selected day: ${DateFormat('yyyy-MM-dd HH:mm:ss.SSS').format(selectDay)}");
+                      // // print("*** selected day: $selectedDay}");
                     });
                   },
                   selectedDayPredicate: (DateTime date) {
@@ -79,64 +89,76 @@ class _AddScheduleState extends State<AddSchedule> {
               ),
               const SizedBox(height: 10),
               Expanded(
-                child: SingleChildScrollView(
-                  child: FutureBuilder(
-                    future: fetchData(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        List? jsonData = snapshot.data;
-                        return Column(
-                          children: jsonData!
-                              .map((data) {
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 8.0, horizontal: 16.0),
-                                  child: Card(
-                                    elevation: 3,
-                                    child: ListTile(
-                                      tileColor: Colors.white54,
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                              horizontal: 20.0, vertical: 10.0),
-                                      leading: const Icon(Icons.event,
-                                          color: Colors.blue),
-                                      title: Text(
-                                        data['title'],
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16.0),
-                                      ),
-                                      subtitle: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          const SizedBox(height: 5.0),
-                                          Text(
-                                            'Date: ${data['date']}',
-                                            style: const TextStyle(
-                                                color: Colors.black87),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  alignment: _hasData ? Alignment.topCenter : Alignment.center,
+                  child: SingleChildScrollView(
+                    child: FutureBuilder(
+                      future: fetchData(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          List? jsonData = snapshot.data;
+                          print("schedule data: ${jsonData?.isEmpty}");
+                          return jsonData!.isEmpty
+                              ? Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text('No Schedule Found!!'),
+                                  ],
+                                )
+                              : Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: jsonData!
+                                      .map((data) {
+                                        if (colorCount >
+                                            colorsList.length - 2) {
+                                          colorCount = 0;
+                                        } else {
+                                          colorCount++;
+                                        }
+                                        return Slidable(
+                                          endActionPane: ActionPane(
+                                              motion: ScrollMotion(),
+                                              children: [
+                                                SlidableAction(
+                                                  onPressed: (context) {
+                                                    print("delete pressed");
+                                                    _deleteSchedule(data["id"]);
+                                                  },
+                                                  backgroundColor:
+                                                      Colors.transparent,
+                                                  foregroundColor: Colors.red,
+                                                  icon: Icons.delete,
+                                                ),
+                                              ]),
+                                          child: TimelineItem(
+                                            bulletColor: colorsList[colorCount],
+                                            time:
+                                                "${DateFormat.jm().format(DateFormat("HH:mm:ss").parse(data['start']))} - ${DateFormat.jm().format(DateFormat("HH:mm:ss").parse(data['end']))}",
+                                            title: data['title'],
+                                            date: data['date'],
                                           ),
-                                          const SizedBox(height: 5.0),
-                                          Text(
-                                            'Time: ${DateFormat.jm().format(DateFormat("HH:mm:ss").parse(data['start']))} - ${DateFormat.jm().format(DateFormat("HH:mm:ss").parse(data['end']))}',
-                                            style: const TextStyle(
-                                                color: Colors.black87),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
+                                        );
+                                      })
+                                      .toList()
+                                      .reversed
+                                      .toList(),
                                 );
-                              })
-                              .toList()
-                              .reversed
-                              .toList(),
+                        } else if (snapshot.hasError) {
+                          return const Text('Error fetching data');
+                        }
+                        return Expanded(
+                          child: Container(
+                            child: const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          ),
                         );
-                      } else if (snapshot.hasError) {
-                        return const Text('Error fetching data');
-                      }
-                      return const Center(child: CircularProgressIndicator());
-                    },
+                      },
+                    ),
                   ),
                 ),
               ),
@@ -144,7 +166,7 @@ class _AddScheduleState extends State<AddSchedule> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton(
         backgroundColor: MyAppTheme.primaryColor,
         onPressed: () => showDialog(
           context: context,
@@ -257,18 +279,15 @@ class _AddScheduleState extends State<AddSchedule> {
                     _eventController.clear();
 
                     // Fetch updated schedule data
-                    await fetchScheduleData();
+                    await fetchData();
+                    setstate(() {});
                   },
                 ),
               ],
             );
           }),
         ),
-        label: const Text(
-          "Add Event",
-          style: TextStyle(color: Colors.white),
-        ),
-        icon: const Icon(
+        child: const Icon(
           Icons.add,
           color: Colors.white,
         ),
@@ -294,19 +313,29 @@ class _AddScheduleState extends State<AddSchedule> {
             'https://project-pilot.000webhostapp.com/API/view_schedule.php'),
         body: {"fid": "${Constants.prefs!.getString("fid")}"});
     List<dynamic> jsonData = jsonDecode(response.body);
-    return jsonData;
+    if (jsonData.isNotEmpty) {
+      setState(() {
+        _hasData = true;
+      });
+      return jsonData;
+    } else {
+      setState(() {
+        _hasData = false;
+      });
+      return jsonData;
+    }
   }
 
-  Future<void> fetchScheduleData() async {
-    final response = await http.post(
-        Uri.parse(
-            'https://project-pilot.000webhostapp.com/API/view_schedule.php'),
-        body: {"fid": "${Constants.prefs!.getString("fid")}"});
+  // Future<void> fetchScheduleData() async {
+  //   final response = await http.post(
+  //       Uri.parse(
+  //           'https://project-pilot.000webhostapp.com/API/view_schedule.php'),
+  //       body: {"fid": "${Constants.prefs!.getString("fid")}"});
 
-    print("88 events data: ${response.body}");
-    List<dynamic> data = jsonDecode(response.body);
-    updateEvents(data);
-  }
+  //   List<dynamic> data = jsonDecode(response.body);
+  //   print("schedule data: ${data}");
+  //   updateEvents(data);
+  // }
 
   Future<void> addSchedule(
       String eventTitle, TimeOfDay startTime, TimeOfDay endTime) async {
@@ -321,42 +350,47 @@ class _AddScheduleState extends State<AddSchedule> {
         'end_time': flutterTimeOfDayToSqlTime(endTime),
       },
     );
-
-    print("** add schedule: ${response.body}");
-
-    // Check if the API call was successful before fetching updated schedule data
     if (response.statusCode == 200) {
-      // Parse the response to get the added event details
       final addedEvent = jsonDecode(response.body);
-
       print("added event: ${addedEvent}");
-
-      await fetchScheduleData();
-
-      // Update the state to trigger a rebuild of the UI
+      fetchData();
       setState(() {});
     }
   }
 
-  void updateEvents(List<dynamic> data) {
-    selectedEvents = {};
+  // void updateEvents(List<dynamic> data) {
+  //   selectedEvents = {};
 
-    for (var item in data) {
-      DateTime date = DateTime.parse(item['date']).toLocal();
-      if (selectedEvents[date] == null) {
-        selectedEvents[date] = [];
-      }
-      selectedEvents[date]?.add(Event(
-        endTime: item["end"],
-        startTime: item["start"],
-        date: date,
-        title: item['title'],
-        // Add other properties as needed (start, end, etc.)
-      ));
+  //   for (var item in data) {
+  //     DateTime date = DateTime.parse(item['date']).toLocal();
+  //     if (selectedEvents[date] == null) {
+  //       selectedEvents[date] = [];
+  //     }
+  //     selectedEvents[date]?.add(Event(
+  //       endTime: item["end"],
+  //       startTime: item["start"],
+  //       date: date,
+  //       title: item['title'],
+  //       // Add other properties as needed (start, end, etc.)
+  //     ));
+  //   }
+
+  //   print("*** selected events: $selectedEvents");
+  //   setState(() {});
+  // }
+
+  Future<void> _deleteSchedule(String subid) async {
+    final response = await http.post(
+        Uri.parse(
+            'https://project-pilot.000webhostapp.com/API/delete_schedule.php'),
+        body: {"subid": subid});
+    print("delete schedule: ${response.body}");
+    if (jsonDecode(response.body)["success"] == "1") {
+      setState(() {
+        fetchData();
+      });
+      setState(() {});
     }
-
-    print("*** selected events: $selectedEvents");
-    setState(() {});
   }
 
   Future<void> _selectTime(BuildContext context,

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:project_management_system/views/add_group_progress.dart';
+import 'package:project_management_system/views/add_group_attendence.dart';
 import 'package:project_management_system/views/group_details.dart';
 import 'package:simple_progress_indicators/simple_progress_indicators.dart';
 import '../utils/all_data.dart';
@@ -41,10 +41,10 @@ class _GroupListState extends State<GroupList> {
                   itemCount: ApiData.groupDataList.length,
                   itemBuilder: (context, index) {
                     return GestureDetector(
-                      onTap: () => Navigator.pushReplacement(
+                      onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => GroupProgress(index: index),
+                            builder: (context) => GroupDetailsWithAttendence(groupDataList: ApiData.groupDataList, index: index,),
                           )),
                       child: Container(
                         padding: const EdgeInsets.all(20),

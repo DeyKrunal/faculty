@@ -48,6 +48,7 @@ dependencies:
   rive:
   shimmer:
   syncfusion_flutter_sliders: ^24.2.9
+  flutter_slidable: ^3.1.0
 
 dev_dependencies:
   flutter_test:
